@@ -144,6 +144,7 @@ const app = express();
 app.use(multer().none());
 app.use(express.static('web'));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.post('/api/generate', (req, res) => {
     const data = req.body;
