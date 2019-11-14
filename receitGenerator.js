@@ -130,7 +130,7 @@ class ReceiptGenerater {
         let metrics = ctx.measureText(aMessage);
         let textWidth = metrics.width;
         let offsetX = (RECEIPT_WIDTH / 2) - (textWidth / 2);
-        aOffsetY += aFontSize + aLineSpace;
+        aOffset.y += aFontSize + aLineSpace;
         if (isRender) {
             ctx.fillText(aMessage, offsetX, aOffset.y);
         }
