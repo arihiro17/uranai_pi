@@ -2,6 +2,10 @@ from janome.tokenizer import Tokenizer
 import json
 import re
 import requests
+import sys
+import time
+import math
+from grove.adc import ADC
 
 # テキストファイルを読み込む
 sjis = open("lyrics.txt", "rb").read()
