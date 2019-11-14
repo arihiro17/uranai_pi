@@ -153,8 +153,8 @@ app.use(bodyParser.json());
 app.post('/api/generate', (req, res) => {
     const data = req.body;
     const text = data.text;
-    // console.log(text);
-    console.log(req);
+    console.log(text);
+    // console.log(req);
     generator.generateImage(text);
     res.send({status: 'OK'});
 });
