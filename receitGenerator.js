@@ -101,7 +101,7 @@ class ReceiptGenerater {
         ctx.font = "bold 34px";
 
         aMsg = aMsg.replace('\n', '');
-        msgArr = [];
+        let msgArr = [];
         for (let cnt = 0, len = aMsg.length/ 10; cnt < len; cnt++ ) {
             this.drawTextCenter(ctx, aMsg.substr(cnt * 10, 10), 34, 24,  aOffset, isRender);
         }
