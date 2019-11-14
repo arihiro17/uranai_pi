@@ -70,7 +70,7 @@ class ReceiptGenerater {
             for (let y = 0, height = color.height; y < height; y++) {
                 for (let x = 0, width = color.width; x < width; x++) {
                     let i = (y * 4) * color.width + x * 4;
-                    let pixelVal = parseInt((pixels.data[i] + pixels.data[i + 1] + pixels.data[i + 2]) / 3, 10);
+                    let pixelVal = parseInt((color.data[i] + color.data[i + 1] + color.data[i + 2]) / 3, 10);
                     mono.push(pixelVal);
                 }
             }
