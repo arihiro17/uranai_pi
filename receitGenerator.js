@@ -59,10 +59,10 @@ class ReceiptGenerater {
             renderCtx.lineWidth = 1;
 
             let offset = { x: 0, y: 0 };
-            this.drawLogo(calcCtx, images[0], offset, false);
-            this.drawResultText(calcCtx, text, offset, false);
-            this.drawHeading(calcCtx, images[1], offset, false);
-            this.drawMessage(calcCtx, offset, false);
+            this.drawLogo(renderCtx, images[0], offset, true);
+            this.drawResultText(renderCtx, text, offset, true);
+            this.drawHeading(renderCtx, images[1], offset, true);
+            this.drawMessage(renderCtx, offset, true);
 
             let header = new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16) ]);
             let color = renderCtx.getImageData(0, 0, RECEIPT_WIDTH, offset.y);
