@@ -101,8 +101,6 @@ class GroveGSRSensor:
 
 Grove = GroveGSRSensor
 
-api = "http://127.0.0.1:3000/api/generate/"
-
 def main():
     if len(sys.argv) < 2:
         print("Usage: {} adc_channel".format(sys.argv[0]))
@@ -118,7 +116,8 @@ def main():
             s = check(s)
             response = requests.post(
                 "http://127.0.0.1:3000/api/generate/",
-                {'text': s}
+                json.dump({'text': s}),
+                headers={'Content-Type': 'application/json'}
             )
             time.sleep(30)
 

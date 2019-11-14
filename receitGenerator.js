@@ -148,7 +148,8 @@ app.use(express.static('web'));
 app.post('/api/generate', (req, res) => {
     const data = req.body;
     const text = data.text;
-    console.log(text);
+    // console.log(text);
+    console.log(req);
     generator.generateImage(text).then(() => {
 
     });
