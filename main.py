@@ -64,7 +64,7 @@ def make_sentence(dic):
     for i in range(32):
         w3 = word_choice(dic[w1][w2])
         ret.append(w3)
-        if w3 == "\n": break
+        if w3 == "\n" or w3 == "。": break
         w1, w2 = w2, w3
     tweets_list.append(ret)
     return "".join(ret)
