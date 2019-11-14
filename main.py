@@ -116,7 +116,7 @@ def main():
             s = check(s)
             response = requests.post(
                 "http://127.0.0.1:3000/api/generate/",
-                json.dump({'text': s}),
+                data=json.dumps({'text': s}),
                 headers={'Content-Type': 'application/json'}
             )
             time.sleep(30)
