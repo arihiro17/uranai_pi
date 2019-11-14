@@ -3,6 +3,7 @@ const { createCanvas, loadImage } = require('canvas');
 const SerialPort = require('serialport');
 const express = require('express');
 const multer = require('multer');
+const bodyParser = require("body-parser");
 
 
 const RECEIPT_WIDTH = 384;
@@ -142,7 +143,7 @@ const generator = new ReceiptGenerater();
 const app = express();
 app.use(multer().none());
 app.use(express.static('web'));
-app.use(express.bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/api/generate', (req, res) => {
     const data = req.body;
