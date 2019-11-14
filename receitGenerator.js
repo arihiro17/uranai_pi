@@ -143,7 +143,7 @@ const generator = new ReceiptGenerater();
 
 const app = express();
 app.use(multer().none());
-app.use(jexpress.static('web'));
+app.use(express.static('web'));
 
 app.post('/api/generate', (req, res) => {
     const data = req.body;
