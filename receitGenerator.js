@@ -52,7 +52,7 @@ class ReceiptGenerater {
             this.drawHeading(calcCtx, images[1], size, false);
             this.drawMessage(calcCtx, size, false);
 
-            const renderCanvas = createCanvas(0, 0);
+            const renderCanvas = createCanvas(RECEIPT_WIDTH, size.y);
             const renderCtx = renderCanvas.getContext('2d');
             renderCtx.fillStyle = '#000';
             renderCtx.strokeStyle = '#000';
