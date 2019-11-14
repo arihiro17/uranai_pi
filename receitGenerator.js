@@ -76,6 +76,8 @@ class ReceiptGenerater {
             }
             
             let height = mono.length / BMP_BYTES_PER_LINE;
+            console.log(parseInt( (height & 0xff00) >>> 8));
+            console.log(parseInt(height & 0x00ff));
             let n1 = new Buffer.from( parseInt( (height & 0xff00) >>> 8) );
             let n2 = new Buffer.from( parseInt(height & 0x00ff) );
 
