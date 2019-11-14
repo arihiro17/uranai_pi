@@ -33,60 +33,58 @@ const printer = new SerialPort('/dev/ttyAMA0', {
 
 class ReceiptGenerater {
     generateImage(text) {
-        return new Promise((resolve, reject) => {
-            Promise.all([
-                loadImage(path.join(__dirname, './receiptParts/logo.png')),
-                loadImage(path.join(__dirname, './receiptParts/heading.png')),
-            ]).then((images) => {
+        Promise.all([
+            loadImage(path.join(__dirname, './receiptParts/logo.png')),
+            loadImage(path.join(__dirname, './receiptParts/heading.png')),
+        ]).then((images) => {
 
-                const calcCanvas = createCanvas(0, 0);
-                const calcCtx = calcCanvas.getContext('2d');
-                calcCtx.fillStyle = '#000';
-                calcCtx.strokeStyle = '#000';
-                calcCtx.lineWidth = 1;
+            const calcCanvas = createCanvas(0, 0);
+            const calcCtx = calcCanvas.getContext('2d');
+            calcCtx.fillStyle = '#000';
+            calcCtx.strokeStyle = '#000';
+            calcCtx.lineWidth = 1;
 
-                // キャンバスサイズ割り出し
-                let size = { x: 0, y: 0 };
-                this.drawLogo(calcCtx, images[0], size, false);
-                this.drawResultText(calcCtx, text, size, false);
-                this.drawHeading(calcCtx, images[1], size, false);
-                this.drawMessage(calcCtx, size, false);
+            // キャンバスサイズ割り出し
+            let size = { x: 0, y: 0 };
+            this.drawLogo(calcCtx, images[0], size, false);
+            this.drawResultText(calcCtx, text, size, false);
+            this.drawHeading(calcCtx, images[1], size, false);
+            this.drawMessage(calcCtx, size, false);
 
-                const renderCanvas = createCanvas(0, 0);
-                const renderCtx = renderCanvas.getContext('2d');
-                renderCtx.fillStyle = '#000';
-                renderCtx.strokeStyle = '#000';
-                renderCtx.lineWidth = 1;
+            const renderCanvas = createCanvas(0, 0);
+            const renderCtx = renderCanvas.getContext('2d');
+            renderCtx.fillStyle = '#000';
+            renderCtx.strokeStyle = '#000';
+            renderCtx.lineWidth = 1;
 
-                let offset = { x: 0, y: 0 };
-                this.drawLogo(calcCtx, images[0], offset, false);
-                this.drawResultText(calcCtx, text, offset, false);
-                this.drawHeading(calcCtx, images[1], offset, false);
-                this.drawMessage(calcCtx, offset, false);
+            let offset = { x: 0, y: 0 };
+            this.drawLogo(calcCtx, images[0], offset, false);
+            this.drawResultText(calcCtx, text, offset, false);
+            this.drawHeading(calcCtx, images[1], offset, false);
+            this.drawMessage(calcCtx, offset, false);
 
-                let header = new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16) ]);
-                let color = renderCtx.getImageData(0, 0, RECEIPT_WIDTH, offset.y);
-                let mono = [];
-                for (let y = 0, height = color.height; y < height; y++) {
-                    for (let x = 0, width = color.width; x < width; x++) {
-                        let i = (y * 4) * color.width + x * 4;
-                        let pixelVal = parseInt((pixels.data[i] + pixels.data[i + 1] + pixels.data[i + 2]) / 3, 10);
-                        mono.push(pixelVal);
-                    }
+            let header = new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16) ]);
+            let color = renderCtx.getImageData(0, 0, RECEIPT_WIDTH, offset.y);
+            let mono = [];
+            for (let y = 0, height = color.height; y < height; y++) {
+                for (let x = 0, width = color.width; x < width; x++) {
+                    let i = (y * 4) * color.width + x * 4;
+                    let pixelVal = parseInt((pixels.data[i] + pixels.data[i + 1] + pixels.data[i + 2]) / 3, 10);
+                    mono.push(pixelVal);
                 }
-                
-                let height = mono.length / BMP_BYTES_PER_LINE;
-                let n1 = (height & 0xff00) >>> 8;
-                let n2 = (height & 0x00ff);
+            }
+            
+            let height = mono.length / BMP_BYTES_PER_LINE;
+            let n1 = (height & 0xff00) >>> 8;
+            let n2 = (height & 0x00ff);
 
-                // プリンタに送信
-                printer.write( Buffer.concat([header, n1, n2]), DEFAULT_TIMEOUT);
-                for (let from = 0, len = mono.length; from < len; from += MAX_USBFS_BUFFER_SIZE) {
-                    let to = Math.min(mono.length, from + MAX_USBFS_BUFFER_SIZE);
-                    printer.write(mono.slice(from, to));
-                }
-            });
-        })
+            // プリンタに送信
+            printer.write( Buffer.concat([header, n1, n2]), DEFAULT_TIMEOUT);
+            for (let from = 0, len = mono.length; from < len; from += MAX_USBFS_BUFFER_SIZE) {
+                let to = Math.min(mono.length, from + MAX_USBFS_BUFFER_SIZE);
+                printer.write(mono.slice(from, to));
+            }
+        });
     }
 
     drawLogo(ctx, aImage, aOffset, isRender) {
@@ -150,9 +148,7 @@ app.post('/api/generate', (req, res) => {
     const text = data.text;
     // console.log(text);
     console.log(req);
-    generator.generateImage(text).then(() => {
-
-    });
+    generator.generateImage(text);
     res.json({msg: 'OK'});
 });
 
