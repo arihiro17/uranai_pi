@@ -85,8 +85,10 @@ class ReceiptGenerater {
             printer.write( Buffer.concat([header, n1, n2]), DEFAULT_TIMEOUT);
             for (let from = 0, len = mono.length; from < len; from += MAX_USBFS_BUFFER_SIZE) {
                 let to = Math.min(mono.length, from + MAX_USBFS_BUFFER_SIZE);
-                printer.write(mono.slice(from, to));
+                printer.write(mono.slice(from, to), DEFAULT_TIMEOUT);
             }
+
+            console.log('finish');
         });
     }
 
