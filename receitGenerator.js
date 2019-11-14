@@ -142,6 +142,7 @@ const generator = new ReceiptGenerater();
 const app = express();
 app.use(multer().none());
 app.use(express.static('web'));
+app.use(express.bodyParser());
 
 app.post('/api/generate', (req, res) => {
     const data = req.body;
@@ -149,7 +150,7 @@ app.post('/api/generate', (req, res) => {
     // console.log(text);
     console.log(req);
     generator.generateImage(text);
-    res.json({msg: 'OK'});
+    res.send({status: 'OK'});
 });
 
 app.listen(3000, () => console.log('Listening on port 3000'));
