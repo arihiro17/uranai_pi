@@ -1,9 +1,8 @@
-import path from 'path';
-import fs from 'fs';
-import　{ createCanvas, loadImage } from 'canvas';
-import SerialPort from 'serialport';
-import express from 'express';
-import multer from 'multer';
+const path = require('path');
+const { createCanvas, loadImage } = require('canvas');
+const SerialPort = require('serialport');
+const express = require('express');
+const multer = require('multer');
 
 
 const RECEIPT_WIDTH = 384;
