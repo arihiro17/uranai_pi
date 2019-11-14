@@ -76,8 +76,8 @@ class ReceiptGenerater {
             }
             
             let height = mono.length / BMP_BYTES_PER_LINE;
-            let n1 = (height & 0xff00) >>> 8;
-            let n2 = (height & 0x00ff);
+            let n1 = new Buffer.from( (height & 0xff00) >>> 8 );
+            let n2 = new Buffer.from( (height & 0x00ff) );
 
             // プリンタに送信
             printer.write( Buffer.concat([header, n1, n2]), DEFAULT_TIMEOUT);
