@@ -28,6 +28,14 @@ const MESSAGE_ARRAY = [
 
 const printer = new SerialPort('/dev/ttyAMA0', {
     baudRate: 9600,
+    dataBits: 8,
+    parity: 'none',
+    stopBits: 1,
+    dataBits: 8,
+}, (err) => {
+    if (err) {
+        console.log('Error: ', err.message)
+    }
 });
 
 function dithering(pixels, width, height) {
