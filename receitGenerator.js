@@ -26,10 +26,45 @@ const MESSAGE_ARRAY = [
     "金曜日気をつけてね",
 ];
 
-const printer = new SerialPort('/dev/ttyAMA0', {
-    baudRate: 38400,
-    dataBits: 8,
-});
+// const printer = new SerialPort('/dev/ttyAMA0', {
+//     baudRate: 38400,
+// });
+
+
+function dithering(pixels, width, height) {
+
+    let newImage = new Array(width * height).fill(0);
+    for (let y = 0; y < height; y++) {
+        for (x = 0; x < width; x++) {
+            oldpixel = pixels[y * width + x];
+            let quantError;
+            if (pixels > 127.5) {
+                quantError = oldpixel - 255;
+                oldpixel = 255;
+            }
+            else {
+                quantError = oldpixel;
+                oldpixel = 0;
+            }
+            newImage[y * width + x] = oldpixel;
+            if (x != width - 1) {
+                pixels[y * width + (x + 1)] += 7 / 16 * quantError;
+            }
+            if ((x != 0) && (y != height - 1)) {
+                pixels[(y + 1) * width + (x - 1)] += 3 / 16 * quantError;
+            }
+            if (y != height - 1) {
+                pixels[(y + 1) * width + x] += 5 / 16 * quantError;
+            }
+            if (x != width - 1 && y != height - 1) {
+                pixels[(y + 1) * width + (x + 1)] += 1 / 16 * quantError;
+            }
+        }
+    }
+
+    return newImage;
+
+}
 
 
 class ReceiptGenerater {
@@ -64,28 +99,35 @@ class ReceiptGenerater {
             this.drawHeading(renderCtx, images[1], offset, true);
             this.drawMessage(renderCtx, offset, true);
 
-            let header = new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16) ]);
+            // let header = new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16) ]);
             let color = renderCtx.getImageData(0, 0, RECEIPT_WIDTH, offset.y);
-            let mono = [];
-            for (let y = 0, height = color.height; y < height; y++) {
-                for (let x = 0, width = color.width; x < width; x++) {
-                    let i = (y * 4) * color.width + x * 4;
-                    let pixelVal = parseInt((color.data[i] + color.data[i + 1] + color.data[i + 2]) / 3, 10);
-                    mono.push(pixelVal);
+            let mono = dithering(color, RECEIPT_WIDTH, offset.y);
+            
+            let height = mono.length / RECEIPT_WIDTH;
+
+            const maxLine = offset.y * RECEIPT_WIDTH;
+            let buffer = new ArrayBuffer( (BMP_BYTES_PER_LINE / 8) * maxLine );
+            let dv = new DataView(burrer);
+            for (let line = 0; line < maxLine; num++) {
+                for (let byte = 0; byte < BMP_BYTES_PER_LINE / 16; byte++) {
+                    let byteVal = 0;
+                    for (let x = 0; x < 16; x++) {
+                        var val = mono[ line * RECEIPT_WIDTH + byte * 16 + x];
+                        if (127.5 > val) {
+                            byteVal = (byteVal | 0x0001);
+                        }
+                        byteVal = byteVal << 1;
+                    }
+                    var index = line * 3 + byte;
+                    dv.setUint16(index, byteVal)
                 }
             }
             
-            let height = mono.length / BMP_BYTES_PER_LINE;
-            console.log(parseInt( (height & 0xff00) >>> 8));
-            console.log(parseInt(height & 0x00ff));
-            let n1 = new Buffer.from( [(height & 0xff00) >>> 8] );
-            let n2 = new Buffer.from( [(height & 0x00ff)] );
-
             // プリンタに送信
-            printer.write( Buffer.concat([header, n1, n2]), DEFAULT_TIMEOUT);
-            for (let from = 0, len = mono.length; from < len; from += MAX_USBFS_BUFFER_SIZE) {
-                let to = Math.min(mono.length, from + MAX_USBFS_BUFFER_SIZE);
-                printer.write(mono.slice(from, to), DEFAULT_TIMEOUT);
+            printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)), DEFAULT_TIMEOUT);
+            for (let from = 0, len = buffer.byteLength; from < len; from += MAX_USBFS_BUFFER_SIZE) {
+                let to = Math.min(buffer.byteLength, from + MAX_USBFS_BUFFER_SIZE);
+                printer.write(new Buffer.from(buffer, from, to), DEFAULT_TIMEOUT);
             }
 
             console.log('finish');
