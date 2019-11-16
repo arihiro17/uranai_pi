@@ -114,6 +114,8 @@ class ReceiptGenerater {
             const maxLine = offset.y * RECEIPT_WIDTH;
             let buffer = new ArrayBuffer( (BMP_BYTES_PER_LINE / 8) * maxLine );
             let dv = new DataView(buffer);
+
+            console.log(offset);
     
             console.log('print start');
             let header = new Buffer.from(
