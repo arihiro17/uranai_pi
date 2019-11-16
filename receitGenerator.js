@@ -206,8 +206,7 @@ app.post('/api/generate', (req, res) => {
     res.send({status: 'OK'});
 });
 
-printer.open((err) => {
-    console.log(err);
+printer.on('open', (err) => {
     app.listen(3000, () => console.log('Listening on port 3000'));
 });
 
