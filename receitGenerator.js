@@ -152,10 +152,10 @@ class ReceiptGenerater {
                     line.push(byteVal);
                     // console.log(byteindex, byteVal);
                 }
-                console.log(new Buffer.from(line));
-                // printer.write(new Buffer.from(buffer), (err) => {
-                //     if (err) console.log(err);
-                // });
+                // console.log(new Buffer.from(line));
+                printer.write(new Buffer.from(line), (err) => {
+                    if (err) console.log(err);
+                });
             }
 
             // for (let line = 0; line < maxLine; line++) {
