@@ -121,6 +121,7 @@ class ReceiptGenerater {
                     }
                     var index = line * 3 + byte;
                     dv.setUint16(index, byteVal);
+                    console.log(byteVal);
                     printer.write(new Buffer.from([byteVal]), 16);
                 }
             }
