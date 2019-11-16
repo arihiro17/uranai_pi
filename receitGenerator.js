@@ -146,6 +146,7 @@ class ReceiptGenerater {
                         }
                         byteVal = (byteVal << 1);
                     }
+                    console.log(byteindex);
                     dv.setUint8(byteindex, byteVal);
                 }
                 console.log(buffer);
