@@ -132,7 +132,7 @@ class ReceiptGenerater {
             );
 
             for (let from = 0, len = mono.length; from < len; from+=MAX_USBFS_BUFFER_SIZE) {
-                let to = Math.min(arr.length, from + MAX_USBFS_BUFFER_SIZE);
+                let to = Math.min(len, from + MAX_USBFS_BUFFER_SIZE);
                 let sendSize = (to - from);
                 let buffer = new ArrayBuffer( sendSize / 8 );
                 let dv = new DataView(buffer);
