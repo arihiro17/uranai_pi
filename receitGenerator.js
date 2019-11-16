@@ -15,7 +15,7 @@ const BMP_BYTES_PER_LINE = RECEIPT_WIDTH / BYTE_SIZE;
 const DEFAULT_TIMEOUT = 10000;
 
 // const MAX_USBFS_BUFFER_SIZE = 16384;
-const MAX_USBFS_BUFFER_SIZE = 2048;
+const MAX_USBFS_BUFFER_SIZE = 48;
 
 const MESSAGE_ARRAY = [
     "そのままで大丈夫！",
@@ -154,7 +154,6 @@ class ReceiptGenerater {
                 // printer.write(new Buffer.from(buffer), (err) => {
                 //     if (err) console.log(err);
                 // });
-
             }
 
             // for (let line = 0; line < maxLine; line++) {
