@@ -124,7 +124,7 @@ class ReceiptGenerater {
                 parseInt( (height & 0xff00) >>> 8),
                 parseInt(height & 0x00ff)
             ]);
-            console.log(header.toString());
+            console.log(header);
             printer.write(header,
                 (err) => {
                     if (err) console.log(err);
