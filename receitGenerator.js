@@ -8,7 +8,9 @@ const bodyParser = require("body-parser");
 
 const RECEIPT_WIDTH = 384;
 
-const BMP_BYTES_PER_LINE = RECEIPT_WIDTH / 8;
+const BYTE_SIZE = 8;
+
+const BMP_BYTES_PER_LINE = RECEIPT_WIDTH / BYTE_SIZE;
 
 const DEFAULT_TIMEOUT = 10000;
 
@@ -111,10 +113,7 @@ class ReceiptGenerater {
             
             let height = mono.length / RECEIPT_WIDTH;
     
-            const maxLine = offset.y * RECEIPT_WIDTH;
-            let buffer = new ArrayBuffer( (BMP_BYTES_PER_LINE / 8) * maxLine );
-            let dv = new DataView(buffer);
-
+            const maxLine = offset.y;
             console.log(offset);
     
             console.log('print start');
@@ -126,14 +125,37 @@ class ReceiptGenerater {
                 parseInt( (height & 0xff00) >>> 8),
                 parseInt(height & 0x00ff)
             ]);
-            console.log(header);
             printer.write(header,
                 (err) => {
                     if (err) console.log(err);
                 }
             );
 
+            for (let from = 0, len = mono.length; from < len; from+=MAX_USBFS_BUFFER_SIZE) {
+                let to = Math.min(arr.length, from + MAX_USBFS_BUFFER_SIZE);
+                let sendSize = (to - from);
+                let buffer = new ArrayBuffer( sendSize / 8 );
+                let dv = new DataView(buffer);
+
+                for (let byteindex = 0; byteindex < sendSize; byteindex++) {
+                    let byteVal = 0x00;
+                    for (let cnt = 0; cnt < BYTE_SIZE; cnt++) {
+                        var val = mono[from + byteindex * BYTE_SIZE + cnt];
+                        if (127.5 > val) {
+                            byteVal = (byteVal | 0x01);
+                        }
+                        byteVal = (byteVal << 1);
+                    }
+                    dv.setUint8(byteindex, byteVal);
+                }
+                printer.write(new Buffer.from(buffer), (err) => {
+                    if (err) console.log(err);
+                });
+            }
+
             // for (let line = 0; line < maxLine; line++) {
+            //     let buffer = new ArrayBuffer( (BMP_BYTES_PER_LINE / 8) * maxLine );
+            //     let dv = new DataView(buffer);
             //     for (let byte = 0; byte < BMP_BYTES_PER_LINE / 16; byte++) {
             //         let byteVal = 0;
             //         for (let x = 0; x < 16; x++) {
@@ -145,11 +167,10 @@ class ReceiptGenerater {
             //         }
             //         var index = line * 3 + byte;
             //         dv.setUint16(index, byteVal);
-            //         // console.log(byteVal);
-            //         printer.write(new Buffer.from([byteVal]), (err) => {
-            //             if (err) console.log(err);
-            //         });
             //     }
+            //     printer.write(new Buffer.from([byteVal]), (err) => {
+            //         if (err) console.log(err);
+            //     });
             // }
             console.log('finish');
         });
