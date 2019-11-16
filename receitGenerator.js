@@ -26,7 +26,7 @@ const MESSAGE_ARRAY = [
     "金曜日気をつけてね",
 ];
 
-const printer = new SerialPort('/dev/ttyS0', {
+const printer = new SerialPort('/dev/ttyAMA0', {
     baudRate: 9600,
 });
 
