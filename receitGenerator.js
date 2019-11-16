@@ -116,7 +116,18 @@ class ReceiptGenerater {
             let dv = new DataView(buffer);
     
             console.log('print start');
-            printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)));
+            printer.write( new Buffer.from(
+                [
+                    parseInt('0x1c', 16),
+                    parseInt('0x2a', 16),
+                    parseInt('0x65', 16),
+                    parseInt( (height & 0xff00) >>> 8),
+                    parseInt(height & 0x00ff)
+                ]),
+                (err) => {
+                    if (err) console.log(err);
+                }
+            );
             for (let line = 0; line < maxLine; line++) {
                 for (let byte = 0; byte < BMP_BYTES_PER_LINE / 16; byte++) {
                     let byteVal = 0;
@@ -130,7 +141,9 @@ class ReceiptGenerater {
                     var index = line * 3 + byte;
                     dv.setUint16(index, byteVal);
                     console.log(byteVal);
-                    printer.write(new Buffer.from([byteVal]), 16);
+                    printer.write(new Buffer.from([byteVal]), (err) => {
+                        if (err) console.log(err);
+                    });
                 }
             }
             console.log('finish');
