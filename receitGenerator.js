@@ -27,7 +27,7 @@ const MESSAGE_ARRAY = [
 ];
 
 const printer = new SerialPort('/dev/ttyAMA0', {
-    baudRate: 38400,
+    baudRate: 9600,
 });
 
 function dithering(pixels, width, height) {
