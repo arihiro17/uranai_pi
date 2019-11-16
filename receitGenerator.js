@@ -107,7 +107,7 @@ class ReceiptGenerater {
             const maxLine = offset.y * RECEIPT_WIDTH;
             let buffer = new ArrayBuffer( (BMP_BYTES_PER_LINE / 8) * maxLine );
             let dv = new DataView(buffer);
-            for (let line = 0; line < maxLine; num++) {
+            for (let line = 0; line < maxLine; line++) {
                 for (let byte = 0; byte < BMP_BYTES_PER_LINE / 16; byte++) {
                     let byteVal = 0;
                     for (let x = 0; x < 16; x++) {
