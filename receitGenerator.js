@@ -26,10 +26,9 @@ const MESSAGE_ARRAY = [
     "金曜日気をつけてね",
 ];
 
-// const printer = new SerialPort('/dev/ttyAMA0', {
-//     baudRate: 38400,
-// });
-
+const printer = new SerialPort('/dev/ttyAMA0', {
+    baudRate: 38400,
+});
 
 function dithering(pixels, width, height) {
 
@@ -124,12 +123,12 @@ class ReceiptGenerater {
             }
             
             // プリンタに送信
+            console.log('print start');
             printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)), DEFAULT_TIMEOUT);
             for (let from = 0, len = buffer.byteLength; from < len; from += MAX_USBFS_BUFFER_SIZE) {
                 let to = Math.min(buffer.byteLength, from + MAX_USBFS_BUFFER_SIZE);
                 printer.write(new Buffer.from(buffer, from, to), DEFAULT_TIMEOUT);
             }
-
             console.log('finish');
         });
     }
