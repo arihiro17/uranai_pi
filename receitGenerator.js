@@ -116,47 +116,40 @@ class ReceiptGenerater {
             let dv = new DataView(buffer);
     
             console.log('print start');
-            printer.write( new Buffer.from(
-                [
-                    parseInt('0x1c', 16),
-                    parseInt('0x2a', 16),
-                    parseInt('0x65', 16),
-                    parseInt( (height & 0xff00) >>> 8),
-                    parseInt(height & 0x00ff)
-                ]),
+            let header = new Buffer.from(
+            [
+                parseInt('0x1c', 16),
+                parseInt('0x2a', 16),
+                parseInt('0x65', 16),
+                parseInt( (height & 0xff00) >>> 8),
+                parseInt(height & 0x00ff)
+            ]);
+            console.log(header.toString());
+            printer.write(header,
                 (err) => {
                     if (err) console.log(err);
                 }
             );
-            for (let line = 0; line < maxLine; line++) {
-                for (let byte = 0; byte < BMP_BYTES_PER_LINE / 16; byte++) {
-                    let byteVal = 0;
-                    for (let x = 0; x < 16; x++) {
-                        var val = mono[ line * RECEIPT_WIDTH + byte * 16 + x];
-                        if (127.5 > val) {
-                            byteVal = (byteVal | 0x0001);
-                        }
-                        byteVal = byteVal << 1;
-                    }
-                    var index = line * 3 + byte;
-                    dv.setUint16(index, byteVal);
-                    console.log(byteVal);
-                    printer.write(new Buffer.from([byteVal]), (err) => {
-                        if (err) console.log(err);
-                    });
-                }
-            }
-            console.log('finish');
-            
-            // プリンタに送信
-            // console.log('print start');
-            // printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)), DEFAULT_TIMEOUT);
-            // for (let from = 0, len = buffer.byteLength; from < len; from += MAX_USBFS_BUFFER_SIZE) {
-            //     let to = Math.min(buffer.byteLength, from + MAX_USBFS_BUFFER_SIZE);
-    
-            //     printer.write(new Buffer.from(buffer, from, to), DEFAULT_TIMEOUT);
+
+            // for (let line = 0; line < maxLine; line++) {
+            //     for (let byte = 0; byte < BMP_BYTES_PER_LINE / 16; byte++) {
+            //         let byteVal = 0;
+            //         for (let x = 0; x < 16; x++) {
+            //             var val = mono[ line * RECEIPT_WIDTH + byte * 16 + x];
+            //             if (127.5 > val) {
+            //                 byteVal = (byteVal | 0x0001);
+            //             }
+            //             byteVal = byteVal << 1;
+            //         }
+            //         var index = line * 3 + byte;
+            //         dv.setUint16(index, byteVal);
+            //         // console.log(byteVal);
+            //         printer.write(new Buffer.from([byteVal]), (err) => {
+            //             if (err) console.log(err);
+            //         });
+            //     }
             // }
-            // console.log('finish');
+            console.log('finish');
         });
         
     }
