@@ -135,8 +135,10 @@ class ReceiptGenerater {
             for (let from = 0, len = mono.length; from < len; from+=MAX_USBFS_BUFFER_SIZE) {
                 let to = Math.min(len, from + MAX_USBFS_BUFFER_SIZE);
                 let sendSize = (to - from);
-                let buffer = new ArrayBuffer( sendSize / 8 );
-                let dv = new DataView(buffer);
+                // let buffer = new ArrayBuffer( sendSize / 8 );
+                // let dv = new DataView(buffer);
+
+                let line = [];
 
                 for (let byteindex = 0; byteindex < sendSize; byteindex++) {
                     let byteVal = 0x00;
@@ -147,10 +149,10 @@ class ReceiptGenerater {
                         }
                         byteVal = (byteVal << 1);
                     }
-                    console.log(byteindex);
-                    dv.setUint8(byteindex, byteVal);
+                    line.push(byteVal);
+                    console.log(byteindex, byteVal);
                 }
-                console.log(buffer);
+                console.log(new Buffer.from(line));
                 // printer.write(new Buffer.from(buffer), (err) => {
                 //     if (err) console.log(err);
                 // });
