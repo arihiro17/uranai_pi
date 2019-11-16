@@ -150,7 +150,7 @@ class ReceiptGenerater {
                         }
                     }
                     line.push(byteVal);
-                    console.log(byteindex, byteVal);
+                    // console.log(byteindex, byteVal);
                 }
                 console.log(new Buffer.from(line));
                 // printer.write(new Buffer.from(buffer), (err) => {
