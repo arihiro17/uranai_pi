@@ -107,6 +107,9 @@ class ReceiptGenerater {
             const maxLine = offset.y * RECEIPT_WIDTH;
             let buffer = new ArrayBuffer( (BMP_BYTES_PER_LINE / 8) * maxLine );
             let dv = new DataView(buffer);
+
+            console.log('print start');
+            printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)), DEFAULT_TIMEOUT);
             for (let line = 0; line < maxLine; line++) {
                 for (let byte = 0; byte < BMP_BYTES_PER_LINE / 16; byte++) {
                     let byteVal = 0;
@@ -118,18 +121,21 @@ class ReceiptGenerater {
                         byteVal = byteVal << 1;
                     }
                     var index = line * 3 + byte;
-                    dv.setUint16(index, byteVal)
+                    dv.setUint16(index, byteVal);
+                    printer.write(new Buffer.from(byteVal), 16);
                 }
             }
+            console.log('finish');
             
             // プリンタに送信
-            console.log('print start');
-            printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)), DEFAULT_TIMEOUT);
-            for (let from = 0, len = buffer.byteLength; from < len; from += MAX_USBFS_BUFFER_SIZE) {
-                let to = Math.min(buffer.byteLength, from + MAX_USBFS_BUFFER_SIZE);
-                printer.write(new Buffer.from(buffer, from, to), DEFAULT_TIMEOUT);
-            }
-            console.log('finish');
+            // console.log('print start');
+            // printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)), DEFAULT_TIMEOUT);
+            // for (let from = 0, len = buffer.byteLength; from < len; from += MAX_USBFS_BUFFER_SIZE) {
+            //     let to = Math.min(buffer.byteLength, from + MAX_USBFS_BUFFER_SIZE);
+
+            //     printer.write(new Buffer.from(buffer, from, to), DEFAULT_TIMEOUT);
+            // }
+            // console.log('finish');
         });
     }
 
