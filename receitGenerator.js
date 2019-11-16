@@ -144,10 +144,10 @@ class ReceiptGenerater {
                     let byteVal = 0x00;
                     for (let cnt = 0; cnt < BYTE_SIZE; cnt++) {
                         var val = mono[from + byteindex * BYTE_SIZE + cnt];
+                        byteVal = (byteVal << 1);
                         if (127.5 > val) {
                             byteVal = (byteVal | 0x01);
                         }
-                        byteVal = (byteVal << 1);
                     }
                     line.push(byteVal);
                     console.log(byteindex, byteVal);
