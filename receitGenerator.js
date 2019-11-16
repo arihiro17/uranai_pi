@@ -148,9 +148,11 @@ class ReceiptGenerater {
                     }
                     dv.setUint8(byteindex, byteVal);
                 }
-                printer.write(new Buffer.from(buffer), (err) => {
-                    if (err) console.log(err);
-                });
+                console.log(buffer);
+                // printer.write(new Buffer.from(buffer), (err) => {
+                //     if (err) console.log(err);
+                // });
+
             }
 
             // for (let line = 0; line < maxLine; line++) {
