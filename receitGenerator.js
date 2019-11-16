@@ -30,9 +30,6 @@ const printer = new SerialPort('/dev/ttyAMA0', {
     baudRate: 9600,
 });
 
-const logo = loadImage(path.join(__dirname, './receiptParts/logo.png'));
-const heading = loadImage(path.join(__dirname, './receiptParts/heading.png'))
-
 function dithering(pixels, width, height) {
 
     let newImage = new Array(width * height).fill(0);
@@ -71,70 +68,75 @@ function dithering(pixels, width, height) {
 
 class ReceiptGenerater {
     generateImage(text) {
-        
-        const calcCanvas = createCanvas(0, 0);
-        const calcCtx = calcCanvas.getContext('2d');
-        calcCtx.fillStyle = '#000';
-        calcCtx.strokeStyle = '#000';
-        calcCtx.lineWidth = 1;
-
-        // キャンバスサイズ割り出し
-        let size = { x: 0, y: 0 };
-        this.drawLogo(calcCtx, logo, size, false);
-        this.drawResultText(calcCtx, text, size, false);
-        this.drawHeading(calcCtx, heading, size, false);
-        this.drawMessage(calcCtx, size, false);
-
-        const renderCanvas = createCanvas(RECEIPT_WIDTH, size.y);
-        const renderCtx = renderCanvas.getContext('2d');
-        renderCtx.fillStyle = '#000';
-        renderCtx.strokeStyle = '#000';
-        renderCtx.lineWidth = 1;
-
-        let offset = { x: 0, y: 0 };
-        this.drawLogo(renderCtx, logo[0], offset, true);
-        this.drawResultText(renderCtx, text, offset, true);
-        this.drawHeading(renderCtx, heading, offset, true);
-        this.drawMessage(renderCtx, offset, true);
-
-        // let header = new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16) ]);
-        let color = renderCtx.getImageData(0, 0, RECEIPT_WIDTH, offset.y);
-        let mono = dithering(color, RECEIPT_WIDTH, offset.y);
-        
-        let height = mono.length / RECEIPT_WIDTH;
-
-        const maxLine = offset.y * RECEIPT_WIDTH;
-        let buffer = new ArrayBuffer( (BMP_BYTES_PER_LINE / 8) * maxLine );
-        let dv = new DataView(buffer);
-
-        console.log('print start');
-        printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)));
-        for (let line = 0; line < maxLine; line++) {
-            for (let byte = 0; byte < BMP_BYTES_PER_LINE / 16; byte++) {
-                let byteVal = 0;
-                for (let x = 0; x < 16; x++) {
-                    var val = mono[ line * RECEIPT_WIDTH + byte * 16 + x];
-                    if (127.5 > val) {
-                        byteVal = (byteVal | 0x0001);
+        Promise.all([
+            loadImage(path.join(__dirname, './receiptParts/logo.png')),
+            loadImage(path.join(__dirname, './receiptParts/heading.png')),
+        ]).then((images) => {
+            const calcCanvas = createCanvas(0, 0);
+            const calcCtx = calcCanvas.getContext('2d');
+            calcCtx.fillStyle = '#000';
+            calcCtx.strokeStyle = '#000';
+            calcCtx.lineWidth = 1;
+    
+            // キャンバスサイズ割り出し
+            let size = { x: 0, y: 0 };
+            this.drawLogo(calcCtx, images[0], size, false);
+            this.drawResultText(calcCtx, text, size, false);
+            this.drawHeading(calcCtx, images[1], size, false);
+            this.drawMessage(calcCtx, size, false);
+    
+            const renderCanvas = createCanvas(RECEIPT_WIDTH, size.y);
+            const renderCtx = renderCanvas.getContext('2d');
+            renderCtx.fillStyle = '#000';
+            renderCtx.strokeStyle = '#000';
+            renderCtx.lineWidth = 1;
+    
+            let offset = { x: 0, y: 0 };
+            this.drawLogo(renderCtx, images[0], offset, true);
+            this.drawResultText(renderCtx, text, offset, true);
+            this.drawHeading(renderCtx, images[1], offset, true);
+            this.drawMessage(renderCtx, offset, true);
+    
+            // let header = new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16) ]);
+            let color = renderCtx.getImageData(0, 0, RECEIPT_WIDTH, offset.y);
+            let mono = dithering(color, RECEIPT_WIDTH, offset.y);
+            
+            let height = mono.length / RECEIPT_WIDTH;
+    
+            const maxLine = offset.y * RECEIPT_WIDTH;
+            let buffer = new ArrayBuffer( (BMP_BYTES_PER_LINE / 8) * maxLine );
+            let dv = new DataView(buffer);
+    
+            console.log('print start');
+            printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)));
+            for (let line = 0; line < maxLine; line++) {
+                for (let byte = 0; byte < BMP_BYTES_PER_LINE / 16; byte++) {
+                    let byteVal = 0;
+                    for (let x = 0; x < 16; x++) {
+                        var val = mono[ line * RECEIPT_WIDTH + byte * 16 + x];
+                        if (127.5 > val) {
+                            byteVal = (byteVal | 0x0001);
+                        }
+                        byteVal = byteVal << 1;
                     }
-                    byteVal = byteVal << 1;
+                    var index = line * 3 + byte;
+                    dv.setUint16(index, byteVal);
+                    printer.write(new Buffer.from([byteVal]), 16);
                 }
-                var index = line * 3 + byte;
-                dv.setUint16(index, byteVal);
-                printer.write(new Buffer.from([byteVal]), 16);
             }
-        }
-        console.log('finish');
+            console.log('finish');
+            
+            // プリンタに送信
+            // console.log('print start');
+            // printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)), DEFAULT_TIMEOUT);
+            // for (let from = 0, len = buffer.byteLength; from < len; from += MAX_USBFS_BUFFER_SIZE) {
+            //     let to = Math.min(buffer.byteLength, from + MAX_USBFS_BUFFER_SIZE);
+    
+            //     printer.write(new Buffer.from(buffer, from, to), DEFAULT_TIMEOUT);
+            // }
+            // console.log('finish');
+        });
         
-        // プリンタに送信
-        // console.log('print start');
-        // printer.write( new Buffer.from([ parseInt('0x1c', 16), parseInt('0x2a', 16), parseInt('0x65', 16), parseInt( (height & 0xff00) >>> 8) ], parseInt(height & 0x00ff)), DEFAULT_TIMEOUT);
-        // for (let from = 0, len = buffer.byteLength; from < len; from += MAX_USBFS_BUFFER_SIZE) {
-        //     let to = Math.min(buffer.byteLength, from + MAX_USBFS_BUFFER_SIZE);
-
-        //     printer.write(new Buffer.from(buffer, from, to), DEFAULT_TIMEOUT);
-        // }
-        // console.log('finish');
     }
 
     drawLogo(ctx, aImage, aOffset, isRender) {
